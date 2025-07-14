@@ -7,8 +7,8 @@
 SCENE_NAME=${1:-"Example"}
 FILE_NAME=${2:-"main.py"}
 
-rm -rf slides/
-mkdir -p slides/
+rm -rf slides/files/
+mkdir -p slides/files/
 
 uv run manim-slides render "$FILE_NAME" "$SCENE_NAME"
 
