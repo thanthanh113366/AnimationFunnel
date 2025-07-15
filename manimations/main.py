@@ -4,19 +4,19 @@ from manim_slides.slide import Slide
 class Example(Slide):
     def construct(self):
         #Slide 1: Title slide
-        # self.slide1()
+        self.slide1()
 
         #Slide 2: Show the map and the problem
-        # self.slide2()
+        self.slide2()
         
         #Slide 3: Grid-based map representation
-        # self.slide3()
+        self.slide3()
         
         #Slide 4: Vector-based map representation  
-        # self.slide4()
+        self.slide4()
         
         #Slide 5: Shortest path properties in simple polygons
-        # self.slide5()
+        self.slide5()
         
         #Slide 6: Funnel technique
         self.slide6()
@@ -25,7 +25,7 @@ class Example(Slide):
         self.slide7()
 
         #Slide 8: Funnel algorithm in real world
-        # self.slide8()
+        self.slide8()
     
     def slide1(self):
         #Slide 1: Title slide
@@ -452,7 +452,7 @@ class Example(Slide):
 
     def slide5(self):
         # Title for this slide
-        title = Text("Tính chất đường đi ngắn nhất trong đa giác đơn", font_size=28, weight=BOLD)
+        title = Text("Shortest Path Properties in Simple Polygons", font_size=30, weight=BOLD)
         title.to_edge(UP, buff=0.5)
         
         # Show the original image scaled to fit better
@@ -460,9 +460,9 @@ class Example(Slide):
         self.img.move_to(LEFT * 1.5)
         
         # Create vector representation from slide4 data
-        scale_factor = 0.99
-        origin_x = self.img.get_left()[0]
-        origin_y = self.img.get_bottom()[1]
+        scale_factor = 1.2
+        origin_x = self.img.get_left()[0] - 1
+        origin_y = self.img.get_bottom()[1] -1
         
         # All points from slide4
         key_points = [
@@ -555,7 +555,7 @@ class Example(Slide):
         
         # Create key points for shortest path examples
         key_vertices = VGroup()
-        example_labels = ["T₁", "E", "F", "K", "R₁", "E₁", "D₁", "A", "A₁"]
+        example_labels = ["T₁", "E", "E₁", "F₁", "D₁", "A", "A₁"]
         for label in example_labels:
             coords = get_point_coords(label)
             if coords:
@@ -566,12 +566,12 @@ class Example(Slide):
         
         # Property explanation
         property_text = VGroup()
-        prop_title = Text("Tính chất:", font_size=18, weight=BOLD, color=YELLOW)
-        prop_desc = Text("Đường đi ngắn nhất là chuỗi các đoạn thẳng\nvới đỉnh là đỉnh của đa giác", 
-                        font_size=14, color=WHITE)
+        prop_title = Text("Property:", font_size=20, weight=BOLD, color=YELLOW)
+        prop_desc = Text("Shortest path is a\nsequence of line\nsegments with vertices\nat polygon vertices", 
+                        font_size=20, color=WHITE)
         property_text.add(prop_title)
         property_text.add(prop_desc.next_to(prop_title, DOWN, buff=0.2, aligned_edge=LEFT))
-        property_text.move_to(self.img.get_right() + RIGHT * 2.5)
+        property_text.move_to(self.img.get_top() + RIGHT * 6.8 + DOWN * 0.5)
         
         # Animate the slide
         self.play(Write(title))
@@ -586,9 +586,26 @@ class Example(Slide):
         self.play(Create(key_vertices))
         self.next_slide()
         
+        # Helper function to create angle using Manim built-in Angle class
+        def create_manim_angle(vertex, point1, point2, angle_deg, radius=0.4, color=YELLOW):
+            """Create angle using Manim's built-in Angle class"""
+            # Create lines from vertex to the two points
+            line1 = Line(start=vertex, end=point1)
+            line2 = Line(start=vertex, end=point2)
+            
+            # For reflex angles (>180°), we want to draw the "other" angle (the smaller one)
+            # but show the reflex angle value. This creates the correct visual.
+            use_other_angle = False
+            
+            # Create Manim Angle object
+            angle = Angle(line1, line2, radius=radius, color=color, 
+                         stroke_width=3, other_angle=use_other_angle)
+            
+            return angle
+        
         # Example 1: T₁ to E (direct edge)
-        example1_title = Text("Ví dụ 1: T₁ → E", font_size=16, weight=BOLD, color=GREEN)
-        example1_desc = Text("Đường đi ngắn nhất: T₁E (1 cạnh)", font_size=12, color=WHITE)
+        example1_title = Text("Example 1: T₁ → E", font_size=20, weight=BOLD, color=GREEN)
+        example1_desc = Text("Shortest path: T₁E (1 edge)", font_size=16, color=WHITE)
         example1_text = VGroup(example1_title, example1_desc.next_to(example1_title, DOWN, buff=0.1, aligned_edge=LEFT))
         example1_text.move_to(property_text.get_center() + DOWN * 1.5)
         
@@ -603,55 +620,89 @@ class Example(Slide):
             self.play(Create(path1))
         self.next_slide()
         
-        # Example 2: T₁ to K (via E, F)
-        example2_title = Text("Ví dụ 2: T₁ → K", font_size=16, weight=BOLD, color=ORANGE)
-        example2_desc = Text("Đường đi ngắn nhất: T₁EFK", font_size=12, color=WHITE)
+        # Example 2: T₁ to E₁ (via E) - Analyze angle T₁EE₁
+        example2_title = Text("Example 2: T₁ → E₁", font_size=20, weight=BOLD, color=ORANGE)
+        example2_desc = Text("Check angle T₁EE₁", font_size=16, color=WHITE)
         example2_text = VGroup(example2_title, example2_desc.next_to(example2_title, DOWN, buff=0.1, aligned_edge=LEFT))
         example2_text.move_to(example1_text.get_center() + DOWN * 0.8)
         
-        # Draw path T₁ → E → F → K
-        f_coords = get_point_coords("F")
-        k_coords = get_point_coords("K")
-        if t1_coords and e_coords and f_coords and k_coords:
+        # Draw path T₁ → E → E₁ and show angle
+        e1_coords = get_point_coords("E₁")
+        if t1_coords and e_coords and e1_coords:
             path2_1 = Line(start=t1_coords, end=e_coords, color=ORANGE, stroke_width=4)
-            path2_2 = Line(start=e_coords, end=f_coords, color=ORANGE, stroke_width=4)
-            path2_3 = Line(start=f_coords, end=k_coords, color=ORANGE, stroke_width=4)
-            path2 = VGroup(path2_1, path2_2, path2_3)
+            path2_2 = Line(start=e_coords, end=e1_coords, color=ORANGE, stroke_width=4)
+            path2 = VGroup(path2_1, path2_2)
+            
+            # Show angle T₁EE₁ = 187° (hardcoded)
+            angle_deg = 187
+            angle_arc = create_manim_angle(e_coords, t1_coords, e1_coords, angle_deg, radius=0.4, color=YELLOW)
+            angle_text = Text(f"{angle_deg}°", font_size=14, color=YELLOW, weight=BOLD)
+            angle_text.move_to(angle_arc.get_center())
+            
+            # Conclusion text
+            conclusion = Text("Angle > 180°", font_size=16, color=GREEN)
+            conclusion.next_to(example2_desc, DOWN, buff=0.1, aligned_edge=LEFT)
         
         if t1_coords and e_coords:
             self.play(FadeOut(path1))
         self.play(FadeIn(example2_text))
-        if t1_coords and e_coords and f_coords and k_coords:
+        if t1_coords and e_coords and e1_coords:
             self.play(Create(path2))
+            self.play(Create(angle_arc))
+            self.play(Write(angle_text))
+            self.play(Write(conclusion))
         self.next_slide()
         
-        # Example 3: R₁ to D₁ (via E₁)
-        example3_title = Text("Ví dụ 3: R₁ → D₁", font_size=16, weight=BOLD, color=PURPLE)
-        example3_desc = Text("Đường đi ngắn nhất: R₁E₁D₁", font_size=12, color=WHITE)
+        # Example 3: T₁ to F₁ - Analyze angle T₁EF₁
+        example3_title = Text("Example 3: T₁ → F₁", font_size=20, weight=BOLD, color=PURPLE)
+        example3_desc = Text("Check angle T₁EF₁", font_size=16, color=WHITE)
         example3_text = VGroup(example3_title, example3_desc.next_to(example3_title, DOWN, buff=0.1, aligned_edge=LEFT))
-        example3_text.move_to(example2_text.get_center() + DOWN * 0.8)
+        example3_text.move_to(example2_text.get_center() + DOWN * 1.2)
         
-        # Draw path R₁ → E₁ → D₁
-        r1_coords = get_point_coords("R₁")
-        e1_coords = get_point_coords("E₁")
-        d1_coords = get_point_coords("D₁")
-        if r1_coords and e1_coords and d1_coords:
-            path3_1 = Line(start=r1_coords, end=e1_coords, color=PURPLE, stroke_width=4)
-            path3_2 = Line(start=e1_coords, end=d1_coords, color=PURPLE, stroke_width=4)
-            path3 = VGroup(path3_1, path3_2)
+        # Draw path T₁ → E → F₁ and show angle
+        f1_coords = get_point_coords("F₁")
+        if t1_coords and e_coords and f1_coords:
+            path3_1 = Line(start=t1_coords, end=e_coords, color=PURPLE, stroke_width=4)
+            path3_2 = Line(start=e_coords, end=f1_coords, color=PURPLE, stroke_width=4)
+            path3_old = VGroup(path3_1, path3_2)
+            
+            # Show angle T₁EF₁ = 98° (hardcoded)
+            angle_deg_f1 = 98
+            angle_arc_f1 = create_manim_angle(e_coords, t1_coords, f1_coords, angle_deg_f1, radius=0.4, color=YELLOW)
+            angle_text_f1 = Text(f"{angle_deg_f1}°", font_size=14, color=YELLOW, weight=BOLD)
+            angle_text_f1.move_to(angle_arc_f1.get_center())
+            
+            # Show direct path T₁ → F₁
+            path3_direct = Line(start=t1_coords, end=f1_coords, color=GREEN, stroke_width=4)
+            
+            # Conclusion text
+            conclusion3 = Text("Angle < 180°", font_size=16, color=GREEN)
+            conclusion3.next_to(example3_desc, DOWN, buff=0.1, aligned_edge=LEFT)
         
-        if t1_coords and e_coords and f_coords and k_coords:
-            self.play(FadeOut(path2))
+        if t1_coords and e_coords and e1_coords:
+            self.play(FadeOut(path2, angle_arc, angle_text, conclusion))
         self.play(FadeIn(example3_text))
-        if r1_coords and e1_coords and d1_coords:
-            self.play(Create(path3))
+        if t1_coords and e_coords and f1_coords:
+            self.play(Create(path3_old))
+            self.play(Create(angle_arc_f1))
+            self.play(Write(angle_text_f1))
+            self.play(Write(conclusion3))
+            self.next_slide()
+            
+            # Show the better direct path
+            if t1_coords and e_coords and f1_coords:
+                self.play(FadeOut(angle_arc_f1, angle_text_f1))
+            self.play(FadeOut(path3_old), Create(path3_direct))
+            better_text = Text("→ Shortest path: T₁F₁", font_size=16, color=GREEN, weight=BOLD)
+            better_text.next_to(conclusion3, DOWN, buff=0.1, aligned_edge=LEFT)
+            self.play(Write(better_text))
         self.next_slide()
         
         # Problem statement
-        problem_title = Text("Bài toán:", font_size=18, weight=BOLD, color=RED)
-        problem_desc = Text("Tìm đường đi ngắn nhất từ A đến A₁", font_size=14, color=WHITE)
+        problem_title = Text("Problem:", font_size=20, weight=BOLD, color=RED)
+        problem_desc = Text("Find shortest path from A to A₁", font_size=16, color=WHITE)
         problem_text = VGroup(problem_title, problem_desc.next_to(problem_title, DOWN, buff=0.1, aligned_edge=LEFT))
-        problem_text.move_to(example3_text.get_center() + DOWN * 1.2)
+        problem_text.move_to(example3_text.get_center() + DOWN * 1.5)
         
         # Highlight A and A₁
         a_coords = get_point_coords("A")
@@ -660,8 +711,6 @@ class Example(Slide):
             highlight_a = Circle(radius=0.15, color=RED, stroke_width=3).move_to(a_coords)
             highlight_a1 = Circle(radius=0.15, color=RED, stroke_width=3).move_to(a1_coords)
         
-        if r1_coords and e1_coords and d1_coords:
-            self.play(FadeOut(path3))
         self.play(FadeIn(problem_text))
         if a_coords and a1_coords:
             self.play(Create(highlight_a), Create(highlight_a1))
@@ -669,36 +718,37 @@ class Example(Slide):
         
         # Clear everything - only clear objects that exist
         fade_objects = [title, polygon_lines, key_vertices, property_text, 
-                       example1_text, example2_text, example3_text, problem_text]
+                       example1_text, example2_text, example3_text, path3_direct, better_text, conclusion3, problem_text]
         if a_coords and a1_coords:
             fade_objects.extend([highlight_a, highlight_a1])
         self.play(FadeOut(*fade_objects))
 
     def slide6(self):
         # Title for this slide
-        title = Text("Kỹ thuật Funnel", font_size=32, weight=BOLD)
-        subtitle = Text("Thuật toán tìm đường đi ngắn nhất trên dãy tam giác liền kề", font_size=18)
-        subtitle2 = Text("(1 dạng vector-based map)", font_size=16, color=YELLOW)
+        title = Text("Funnel Technique", font_size=32, weight=BOLD)
+        subtitle = Text("Shortest path algorithm on a sequence of adjacent triangles", font_size=24)
+        subtitle2 = Text("(A type of vector-based map)", font_size=24, color=YELLOW)
         title.to_edge(UP, buff=0.3)
         subtitle.next_to(title, DOWN, buff=0.2)
         subtitle2.next_to(subtitle, DOWN, buff=0.1)
         
-        # Points from example.txt (extracted from LaTeX coordinates)
+        # Points from map/example.txt (exact coordinates)
         key_points = [
-            (1.3079019630703324, 3.7580327660226813, "A"),
-            (3.4303192184181963, 4.662939347760166, "B"),
-            (3.282243595952066, 3.165730276158146, "C"),
-            (4.549112810384512, 3.5770514496751846, "D"),
-            (6.589265831028971, 4.366788102827899, "E"),
-            (6.687982912673057, 2.2279180005392982, "F"),
+            (1, 3, "A"),
+            (3, 2, "B"), 
+            (3.46, 3.64, "C"),
+            (4, 5, "D"),
+            (6.68, 3.52, "E"),
+            (2.14, 6.2, "F"),
+            (3.24, 7.52, "G"),
         ]
         
         # Scale and position points for Manim
-        scale_factor = 0.8
+        scale_factor = 1
         
         # Calculate center of polygon for positioning
-        center_x = sum(x for x, y, _ in key_points) / len(key_points)
-        center_y = sum(y for x, y, _ in key_points) / len(key_points)
+        center_x = sum(x for x, y, _ in key_points) / len(key_points) + 2
+        center_y = sum(y for x, y, _ in key_points) / len(key_points) + 1.3
         
         # Helper function to get point coordinates
         def get_point_coords(label):
@@ -720,10 +770,10 @@ class Example(Slide):
                 point_label.next_to(point, UP, buff=0.15)
                 all_points.add(point, point_label)
         
-        # Create original lines from example.txt
+        # Create original lines from map/example.txt
         original_lines = VGroup()
         line_connections = [
-            ("A", "B"), ("C", "A"), ("C", "D"), ("B", "E"), ("E", "F"), ("F", "D")
+            ("A", "B"), ("A", "C"), ("C", "D"), ("B", "E"), ("D", "F"), ("F", "G"), ("G", "E")
         ]
         
         for start_label, end_label in line_connections:
@@ -739,9 +789,9 @@ class Example(Slide):
                 )
                 original_lines.add(line)
         
-        # Create triangulation edges BC, BD, DE
+        # Create triangulation edges for triangle sequence: ABC → BCE → ECD → DEG → DGF
         triangulation_edges = VGroup()
-        triangulation_connections = [("B", "C"), ("B", "D"), ("D", "E")]
+        triangulation_connections = [("B", "C"), ("C", "E"), ("D", "E"), ("D", "G")]
         
         for start_label, end_label in triangulation_connections:
             start_coords = get_point_coords(start_label)
@@ -763,35 +813,36 @@ class Example(Slide):
         a_coords = get_point_coords("A")
         if a_coords:
             funnel_apex = Dot(point=a_coords, color=RED, radius=0.12)
-            apex_label = Text("A (Đỉnh phễu)", font_size=12, color=RED, weight=BOLD)
+            apex_label = Text("A (Funnel apex)", font_size=12, color=RED, weight=BOLD)
             apex_label.next_to(funnel_apex, LEFT, buff=0.3)
             funnel_elements.add(funnel_apex, apex_label)
         
-        # Left edge of funnel (AB)
-        a_coords = get_point_coords("A")
-        b_coords = get_point_coords("B")
-        if a_coords is not None and b_coords is not None:
-            left_edge = Line(start=a_coords, end=b_coords, color=GREEN, stroke_width=4)
-            left_label = Text("AB (Cạnh trái)", font_size=12, color=GREEN, weight=BOLD)
-            left_label.next_to(left_edge.get_center(), UP, buff=0.2)
-            funnel_elements.add(left_edge, left_label)
-        
-        # Right edge of funnel (AC)
+        # Left edge of funnel (AC)
         a_coords = get_point_coords("A")
         c_coords = get_point_coords("C")
         if a_coords is not None and c_coords is not None:
-            right_edge = Line(start=a_coords, end=c_coords, color=ORANGE, stroke_width=4)
-            right_label = Text("AC (Cạnh phải)", font_size=12, color=ORANGE, weight=BOLD)
-            right_label.next_to(right_edge.get_center(), DOWN, buff=0.2)
+            left_edge = Line(start=a_coords, end=c_coords, color=GREEN, stroke_width=4)
+            left_label = Text("AC (Left edge)", font_size=12, color=GREEN, weight=BOLD)
+            left_label.next_to(left_edge.get_center(), UP, buff=0.2)
+            funnel_elements.add(left_edge, left_label)
+        
+        # Right edge of funnel (AB)
+        a_coords = get_point_coords("A")
+        b_coords = get_point_coords("B")
+        if a_coords is not None and b_coords is not None:
+            right_edge = Line(start=a_coords, end=b_coords, color=ORANGE, stroke_width=4)
+            right_label = Text("AB (Right edge)", font_size=12, color=ORANGE, weight=BOLD)
+            right_label.next_to(right_edge.get_center(), DOWN * 1.5, buff=0.2)
             funnel_elements.add(right_edge, right_label)
         
-        # Create colored triangles in sequence
+        # Create colored triangles in sequence: ABC → BCE → ECD → DEG → DGF
         triangles = VGroup()
         triangle_data = [
             (["A", "B", "C"], RED, 0.3, "ABC"),
-            (["B", "C", "D"], BLUE, 0.3, "BCD"),
-            (["B", "D", "E"], GREEN, 0.3, "BDE"),
-            (["D", "E", "F"], PURPLE, 0.3, "DEF"),
+            (["B", "C", "E"], BLUE, 0.3, "BCE"),
+            (["E", "C", "D"], GREEN, 0.3, "ECD"),
+            (["D", "E", "G"], PURPLE, 0.3, "DEG"),
+            (["D", "G", "F"], ORANGE, 0.3, "DGF"),
         ]
         
         triangle_objects = {}
@@ -819,39 +870,43 @@ class Example(Slide):
         
         # Explanation text
         explanation = VGroup()
-        exp_title = Text("Kỹ thuật Funnel:", font_size=18, weight=BOLD, color=YELLOW)
-        exp_desc1 = Text("• Dãy tam giác liền kề: ABC → BCD → BDE → DEF", font_size=12, color=WHITE)
-        exp_desc2 = Text("• Đỉnh phễu A với cạnh trái AB, cạnh phải AC", font_size=12, color=WHITE)
-        exp_desc3 = Text("• Tìm đường đi ngắn nhất từ A đến F", font_size=12, color=WHITE)
+        exp_title = Text("Funnel Technique:", font_size=22, weight=BOLD, color=YELLOW)
+        exp_desc1 = Text("• Sequence of adjacent triangles:\nABC → BCE → ECD → DEG → DGF", font_size=18, color=WHITE)
+        exp_desc2 = Text("• Funnel apex A with left edge AC, right edge AB", font_size=18, color=WHITE)
+        exp_desc3 = Text("• Left edge AC: shortest path to left vertex", font_size=18, color=GREEN)
+        exp_desc4 = Text("• Right edge AB: shortest path to right vertex", font_size=18, color=ORANGE)
+        exp_desc5 = Text("• Find shortest path from A to F", font_size=18, color=WHITE)
         
         explanation.add(exp_title)
-        explanation.add(exp_desc1.next_to(exp_title, DOWN, buff=0.2, aligned_edge=LEFT))
-        explanation.add(exp_desc2.next_to(exp_desc1, DOWN, buff=0.1, aligned_edge=LEFT))
-        explanation.add(exp_desc3.next_to(exp_desc2, DOWN, buff=0.1, aligned_edge=LEFT))
-        explanation.move_to(RIGHT * 4 + UP * 2)
+        explanation.add(exp_desc1.next_to(exp_title, DOWN *1.1, buff=0.2, aligned_edge=LEFT))
+        explanation.add(exp_desc2.next_to(exp_desc1, DOWN *1.1, buff=0.1, aligned_edge=LEFT))
+        explanation.add(exp_desc3.next_to(exp_desc2, DOWN *1.1, buff=0.1, aligned_edge=LEFT))
+        explanation.add(exp_desc4.next_to(exp_desc3, DOWN *1.1, buff=0.1, aligned_edge=LEFT))
+        explanation.add(exp_desc5.next_to(exp_desc4, DOWN *1.1, buff=0.1, aligned_edge=LEFT))
+        explanation.move_to(RIGHT * 3.5 + UP * 0.5)
         
         # Legend
         legend = VGroup()
-        legend_title = Text("Chú thích:", font_size=14, weight=BOLD)
+        legend_title = Text("Legend:", font_size=22, weight=BOLD)
         
         apex_dot = Dot(color=RED, radius=0.08)
-        apex_text = Text("Đỉnh phễu", font_size=10)
+        apex_text = Text("Funnel apex", font_size=18)
         apex_item = VGroup(apex_dot, apex_text.next_to(apex_dot, RIGHT, buff=0.1))
         
         left_line = Line(start=ORIGIN, end=RIGHT*0.3, color=GREEN, stroke_width=4)
-        left_text = Text("Cạnh trái", font_size=10)
+        left_text = Text("Left edge", font_size=18)
         left_item = VGroup(left_line, left_text.next_to(left_line, RIGHT, buff=0.1))
         
         right_line = Line(start=ORIGIN, end=RIGHT*0.3, color=ORANGE, stroke_width=4)
-        right_text = Text("Cạnh phải", font_size=10)
+        right_text = Text("Right edge", font_size=18)
         right_item = VGroup(right_line, right_text.next_to(right_line, RIGHT, buff=0.1))
         
         triangle_sample = Rectangle(width=0.3, height=0.2, fill_color=BLUE, fill_opacity=0.2, stroke_color=BLUE)
-        triangle_text = Text("Tam giác hiện tại", font_size=10)
+        triangle_text = Text("Current triangle", font_size=18)
         triangle_item = VGroup(triangle_sample, triangle_text.next_to(triangle_sample, RIGHT, buff=0.1))
         
         edge_line = Line(start=ORIGIN, end=RIGHT*0.3, color=YELLOW, stroke_width=3)
-        edge_text = Text("Cạnh liền kề", font_size=10)
+        edge_text = Text("Adjacent edge", font_size=18)
         edge_item = VGroup(edge_line, edge_text.next_to(edge_line, RIGHT, buff=0.1))
         
         legend.add(legend_title)
@@ -879,7 +934,7 @@ class Example(Slide):
         self.next_slide()
         
         # Show triangles one by one
-        for name in ["ABC", "BCD", "BDE", "DEF"]:
+        for name in ["ABC", "BCE", "ECD", "DEG", "DGF"]:
             if name in triangle_objects:
                 self.play(FadeIn(triangle_objects[name]))
                 self.next_slide()
@@ -900,25 +955,24 @@ class Example(Slide):
 
     def slide7(self):
         # Title for this slide
-        title = Text("Thuật toán Funnel - Thực hiện từng bước", font_size=28, weight=BOLD)
+        title = Text("Funnel Algorithm - Step by Step", font_size=32, weight=BOLD)
         title.to_edge(UP, buff=0.3)
         
-        # Points from slide6 (same data)
+        # Points from map/example.txt (same as slide6)
         key_points = [
-            (1.3079019630703324, 3.7580327660226813, "A"),
-            (3.4303192184181963, 4.662939347760166, "B"),
-            (3.282243595952066, 3.165730276158146, "C"),
-            (4.549112810384512, 3.5770514496751846, "D"),
-            (6.589265831028971, 4.366788102827899, "E"),
-            (6.687982912673057, 2.2279180005392982, "F"),
+            (1, 3, "A"),
+            (3, 2, "B"), 
+            (3.46, 3.64, "C"),
+            (4, 5, "D"),
+            (6.68, 3.52, "E"),
+            (2.14, 6.2, "F"),
+            (3.24, 7.52, "G"),
         ]
         
         # Scale and position points for Manim (same as slide6)
-        scale_factor = 0.8
-        
-        # Calculate center of polygon for positioning
-        center_x = sum(x for x, y, _ in key_points) / len(key_points)
-        center_y = sum(y for x, y, _ in key_points) / len(key_points)
+        scale_factor = 1.2
+        center_x = sum(x for x, y, _ in key_points) / len(key_points) + 2
+        center_y = sum(y for x, y, _ in key_points) / len(key_points) + 0.8
         
         # Helper function to get point coordinates
         def get_point_coords(label):
@@ -940,16 +994,17 @@ class Example(Slide):
                 point_label.next_to(point, UP, buff=0.15)
                 all_points.add(point, point_label)
         
-        # Create original lines from slide6
+        # Create original lines from map/example.txt + all triangle edges
         original_lines = VGroup()
         line_connections = [
-            ("A", "B"), ("C", "A"), ("C", "D"), ("B", "E"), ("E", "F"), ("F", "D")
+            # Original polygon edges
+            ("A", "B"), ("A", "C"), ("C", "D"), ("B", "E"), ("D", "F"), ("F", "G"), ("G", "E"),
+            # Triangulation edges for ABC → BCE → ECD → DEG → DGF
+            ("B", "C"), ("C", "E"), ("D", "E"), ("D", "G")
         ]
-        
         for start_label, end_label in line_connections:
             start_coords = get_point_coords(start_label)
             end_coords = get_point_coords(end_label)
-            
             if start_coords and end_coords:
                 line = Line(
                     start=start_coords,
@@ -959,74 +1014,66 @@ class Example(Slide):
                 )
                 original_lines.add(line)
         
-        # Funnel algorithm steps
+        # Funnel algorithm steps từ A đến F
         funnel_steps = [
             {
                 "step": 1,
-                "description": "Bước 1: Khởi tạo phễu từ tam giác ABC",
+                "description": "Step 1: Initialize funnel from triangle ABC",
                 "apex": "A",
-                "left_edge": ("A", "B"),
-                "right_edge": ("A", "C"),
+                "left_edge": ("A", "C"),
+                "right_edge": ("A", "B"), 
                 "current_triangle": "ABC",
                 "adjacent_edge": "BC"
             },
             {
                 "step": 2,
-                "description": "Bước 2: Xử lý tam giác BCD, cạnh chung BC",
+                "description": "Step 2: Check common edge CE (triangle BCE)",
                 "apex": "A",
-                "left_edge": ("A", "B"),
-                "right_edge": ("A", "C"),
-                "current_triangle": "BCD",
-                "adjacent_edge": "BD",
-                "new_point": "D"
+                "left_edge": ("A", "C"),
+                "right_edge": ("A", "E"),
+                "current_triangle": "BCE",
+                "adjacent_edge": "CE",
+                "note": "Angle ABE <180°, update right edge to AE"
             },
             {
                 "step": 3,
-                "description": "Bước 3: Cập nhật phễu với điểm D",
+                "description": "Step 3: Check common edge DE (triangle ECD)",
                 "apex": "A",
-                "left_edge": ("A", "B"),
-                "right_edge": ("A", "D"),
-                "current_triangle": "BCD",
-                "adjacent_edge": "BD"
+                "left_edge": ("A", "C", "D"),
+                "right_edge": ("A", "E"),
+                "current_triangle": "ECD",
+                "adjacent_edge": "DE",
+                "note": "Angle ACD>180°, extend left edge to ACD"
             },
             {
                 "step": 4,
-                "description": "Bước 4: Xử lý tam giác BDE, cạnh chung BD",
-                "apex": "A",
-                "left_edge": ("A", "B"),
-                "right_edge": ("A", "D"),
-                "current_triangle": "BDE",
-                "adjacent_edge": "DE",
-                "new_point": "E"
+                "description": "Step 4: Check common edge DG (triangle DEG)",
+                "apex": "C",
+                "left_edge": ("A", "C", "D"),
+                "right_edge": ("A", "C", "D", "G"),
+                "current_triangle": "DEG", 
+                "adjacent_edge": "DG",
+                "note": "Move apex A→C→D, add segment ACD",
+                "path_segment": [("A", "C"), ("C", "D")]
             },
             {
                 "step": 5,
-                "description": "Bước 5: Cập nhật phễu với điểm E",
-                "apex": "A",
-                "left_edge": ("A", "E"),  # left hand AE
-                "right_edge": ("A", "D"), # right hand AD
-                "current_triangle": "BDE",
-                "adjacent_edge": "DE"
-                },
-                {
+                "description": "Step 5: Check common edge FG (triangle DGF)",
+                "apex": "D",
+                "left_edge": ("D", "F"),
+                "right_edge": ("D", "G"),
+                "current_triangle": "DGF",
+                "adjacent_edge": "FG"
+            },
+            {
                 "step": 6,
-                "description": "Bước 6: Xử lý tam giác DEF, cạnh chung DE",
-                "apex": "A",
-                "left_edge": ("A", "E"),  # AE remains left hand
-                "right_edge": ("A", "D"), # AD remains right hand before adding F
-                "current_triangle": "DEF",
-                "adjacent_edge": "EF",
-                "new_point": "F"
-                },
-                {
-                "step": 7,
-                "description": "Bước 7: Đường đi ngắn nhất A → F",
-                "apex": "A",
-                "left_edge": ("A", "E"),  # AE stays left
-                "right_edge": ("A", "D"), # right hand AD (funnel chain A-D-F)
-                "current_triangle": "DEF",
-                "path": [("A", "D"), ("D", "F")]
-                }
+                "description": "Step 6: Shortest path A→C→D→F",
+                "apex": "D",
+                "left_edge": ("D", "F"),
+                "right_edge": ("D", "G"),
+                "current_triangle": "DGF",
+                "final_path": [("A", "C"), ("C", "D"), ("D", "F")]
+            }
         ]
         
         # Create step information display
@@ -1034,23 +1081,30 @@ class Example(Slide):
             info = VGroup()
             
             # Step title
-            step_title = Text(f"Bước {step_data['step']}", font_size=18, weight=BOLD, color=YELLOW)
-            step_desc = Text(step_data['description'], font_size=14, color=WHITE)
+            step_title = Text(f"Step {step_data['step']}", font_size=22, weight=BOLD, color=YELLOW)
+            step_desc = Text(step_data['description'], font_size=18, color=WHITE)
             
             # Funnel state
-            apex_text = Text(f"Đỉnh phễu: {step_data['apex']}", font_size=12, color=RED)
-            left_text = Text(f"Cạnh trái: {step_data['left_edge'][0]}{step_data['left_edge'][1]}", font_size=12, color=GREEN)
-            right_text = Text(f"Cạnh phải: {step_data['right_edge'][0]}{step_data['right_edge'][1]}", font_size=12, color=ORANGE)
+            apex_text = Text(f"Funnel apex: {step_data['apex']}", font_size=20, color=RED)
+            
+            # Handle left edge (can be tuple of 2+ points)
+            left_edge_str = "".join(step_data['left_edge'])
+            left_text = Text(f"Left edge: {left_edge_str}", font_size=20, color=GREEN)
+            
+            # Handle right edge (can be tuple of 2+ points)  
+            right_edge_str = "".join(step_data['right_edge'])
+            right_text = Text(f"Right edge: {right_edge_str}", font_size=20, color=ORANGE)
             
             # Current triangle
-            triangle_text = Text(f"Tam giác hiện tại: {step_data['current_triangle']}", font_size=12, color=BLUE)
+            triangle_text = Text(f"Current triangle: {step_data['current_triangle']}", font_size=20, color=BLUE)
             
             # Adjacent edge
             if 'adjacent_edge' in step_data:
-                edge_text = Text(f"Cạnh liền kề: {step_data['adjacent_edge']}", font_size=12, color=YELLOW)
+                edge_text = Text(f"Adjacent edge: {step_data['adjacent_edge']}", font_size=20, color=YELLOW)
             else:
-                edge_text = Text("", font_size=12)
+                edge_text = Text("", font_size=20)
             
+            # Add basic info
             info.add(step_title)
             info.add(step_desc.next_to(step_title, DOWN, buff=0.2, aligned_edge=LEFT))
             info.add(apex_text.next_to(step_desc, DOWN, buff=0.3, aligned_edge=LEFT))
@@ -1058,8 +1112,7 @@ class Example(Slide):
             info.add(right_text.next_to(left_text, DOWN, buff=0.1, aligned_edge=LEFT))
             info.add(triangle_text.next_to(right_text, DOWN, buff=0.2, aligned_edge=LEFT))
             info.add(edge_text.next_to(triangle_text, DOWN, buff=0.1, aligned_edge=LEFT))
-            
-            info.move_to(RIGHT * 4 + UP * 1)
+
             return info
         
         # Create funnel visualization for a step
@@ -1072,20 +1125,6 @@ class Example(Slide):
                 apex_dot = Dot(point=apex_coords, color=RED, radius=0.12)
                 funnel_visual.add(apex_dot)
             
-            # Left edge
-            left_start = get_point_coords(step_data['left_edge'][0])
-            left_end = get_point_coords(step_data['left_edge'][1])
-            if left_start is not None and left_end is not None:
-                left_line = Line(start=left_start, end=left_end, color=GREEN, stroke_width=4)
-                funnel_visual.add(left_line)
-            
-            # Right edge
-            right_start = get_point_coords(step_data['right_edge'][0])
-            right_end = get_point_coords(step_data['right_edge'][1])
-            if right_start is not None and right_end is not None:
-                right_line = Line(start=right_start, end=right_end, color=ORANGE, stroke_width=4)
-                funnel_visual.add(right_line)
-            
             # Current triangle highlight
             triangle_vertices = list(step_data['current_triangle'])
             triangle_coords = [get_point_coords(v) for v in triangle_vertices]
@@ -1094,15 +1133,55 @@ class Example(Slide):
                 triangle = Polygon(*valid_triangle_coords, fill_color=BLUE, fill_opacity=0.2, stroke_color=BLUE, stroke_width=2)
                 funnel_visual.add(triangle)
             
-            # Adjacent edge highlight
+            # Adjacent edge highlight - cạnh đang xét
             if 'adjacent_edge' in step_data and len(step_data['adjacent_edge']) == 2:
                 edge_start = get_point_coords(step_data['adjacent_edge'][0])
                 edge_end = get_point_coords(step_data['adjacent_edge'][1])
                 if edge_start is not None and edge_end is not None:
-                    edge_line = Line(start=edge_start, end=edge_end, color=YELLOW, stroke_width=3)
+                    # Add glowing effect with slightly larger line behind first
+                    glow_line = Line(start=edge_start, end=edge_end, color=YELLOW, stroke_width=12, stroke_opacity=0.3)
+                    funnel_visual.add(glow_line)
+                    
+                    # Highlight with bright yellow and thick stroke on top
+                    edge_line = Line(start=edge_start, end=edge_end, color=YELLOW, stroke_width=8)
                     funnel_visual.add(edge_line)
+
             
-            # Final path
+            # Left edge (can be multiple points)
+            left_coords = [get_point_coords(point) for point in step_data['left_edge']]
+            left_coords = [coord for coord in left_coords if coord is not None]
+            if len(left_coords) >= 2:
+                for i in range(len(left_coords) - 1):
+                    left_line = Line(start=left_coords[i], end=left_coords[i+1], color=GREEN, stroke_width=8)
+                    funnel_visual.add(left_line)
+            
+            # Right edge (can be multiple points)
+            right_coords = [get_point_coords(point) for point in step_data['right_edge']]
+            right_coords = [coord for coord in right_coords if coord is not None]
+            if len(right_coords) >= 2:
+                for i in range(len(right_coords) - 1):
+                    right_line = Line(start=right_coords[i], end=right_coords[i+1], color=ORANGE, stroke_width=8)
+                    funnel_visual.add(right_line)
+            
+            # Path segments
+            if 'path_segment' in step_data:
+                for path_start, path_end in step_data['path_segment']:
+                    path_start_coords = get_point_coords(path_start)
+                    path_end_coords = get_point_coords(path_end)
+                    if path_start_coords is not None and path_end_coords is not None:
+                        path_line = Line(start=path_start_coords, end=path_end_coords, color=RED, stroke_width=6)
+                        funnel_visual.add(path_line)
+                        
+            # Final complete path
+            if 'final_path' in step_data:
+                for path_start, path_end in step_data['final_path']:
+                    path_start_coords = get_point_coords(path_start)
+                    path_end_coords = get_point_coords(path_end)
+                    if path_start_coords is not None and path_end_coords is not None:
+                        path_line = Line(start=path_start_coords, end=path_end_coords, color=RED, stroke_width=6)
+                        funnel_visual.add(path_line)
+
+            # Legacy path support
             if 'path' in step_data:
                 for path_start, path_end in step_data['path']:
                     path_start_coords = get_point_coords(path_start)
@@ -1115,26 +1194,26 @@ class Example(Slide):
         
         # Legend
         legend = VGroup()
-        legend_title = Text("Chú thích:", font_size=14, weight=BOLD)
+        legend_title = Text("Legend:", font_size=14, weight=BOLD)
         
         apex_dot = Dot(color=RED, radius=0.08)
-        apex_text = Text("Đỉnh phễu", font_size=10)
+        apex_text = Text("Funnel apex", font_size=10)
         apex_item = VGroup(apex_dot, apex_text.next_to(apex_dot, RIGHT, buff=0.1))
         
-        left_line = Line(start=ORIGIN, end=RIGHT*0.3, color=GREEN, stroke_width=4)
-        left_text = Text("Cạnh trái", font_size=10)
+        left_line = Line(start=ORIGIN, end=RIGHT*0.3, color=GREEN, stroke_width=8)
+        left_text = Text("Left edge", font_size=10)
         left_item = VGroup(left_line, left_text.next_to(left_line, RIGHT, buff=0.1))
         
-        right_line = Line(start=ORIGIN, end=RIGHT*0.3, color=ORANGE, stroke_width=4)
-        right_text = Text("Cạnh phải", font_size=10)
+        right_line = Line(start=ORIGIN, end=RIGHT*0.3, color=ORANGE, stroke_width=8)
+        right_text = Text("Right edge", font_size=10)
         right_item = VGroup(right_line, right_text.next_to(right_line, RIGHT, buff=0.1))
         
         triangle_sample = Rectangle(width=0.3, height=0.2, fill_color=BLUE, fill_opacity=0.2, stroke_color=BLUE)
-        triangle_text = Text("Tam giác hiện tại", font_size=10)
+        triangle_text = Text("Current triangle", font_size=10)
         triangle_item = VGroup(triangle_sample, triangle_text.next_to(triangle_sample, RIGHT, buff=0.1))
         
-        edge_line = Line(start=ORIGIN, end=RIGHT*0.3, color=YELLOW, stroke_width=3)
-        edge_text = Text("Cạnh liền kề", font_size=10)
+        edge_line = Line(start=ORIGIN, end=RIGHT*0.3, color=YELLOW, stroke_width=8)
+        edge_text = Text("Highlighted edge", font_size=10)
         edge_item = VGroup(edge_line, edge_text.next_to(edge_line, RIGHT, buff=0.1))
         
         legend.add(legend_title)
@@ -1167,7 +1246,7 @@ class Example(Slide):
                 self.play(FadeOut(current_info))
             
             # Create and show new step
-            current_info = create_step_info(step_data)
+            current_info = create_step_info(step_data).move_to(RIGHT * 4 + UP * 1.2)
             current_funnel = create_funnel_visual(step_data)
             
             # Only animate if objects were created successfully
@@ -1192,7 +1271,7 @@ class Example(Slide):
 
     def slide8(self):
         # Title for this slide
-        title = Text("Funnel Algorithm: A to A₁ (Phân tích HMT)", font_size=28, weight=BOLD)
+        title = Text("Funnel Algorithm: A to A₁ (HMT Analysis)", font_size=28, weight=BOLD)
         title.to_edge(UP, buff=0.5)
 
         # Data from output.txt - Use exact coordinates and algorithm results
@@ -1279,6 +1358,108 @@ class Example(Slide):
         
         self.next_slide()
 
+        # --- Draw all map connections (using index pairs) ---
+        # List of connection pairs as index pairs (e.g., (0, 2))
+        connection_pairs = [
+            (0, 2),   # AC
+            (2, 44),  # CU1
+            (3, 43),  # DT1
+            (3, 42),  # DS1
+            (42, 40), # S1Q1
+            (42, 39), # S1P1
+            (42, 38), # S1O1
+            (42, 37), # S1N1
+            (3, 37), # DN1
+            (3, 36), # DM1
+            (3, 35), # DL1
+            (4, 28),  # EL1
+            (4, 34),  # EK1
+            (4, 33),  # EJ1
+            (33, 31), # J1H1
+            (33, 30), # J1G1
+            (33, 29), # J1F1
+            (4, 29),  # EF1
+            (5, 29),  # FF1
+            (5, 4),   # FE1
+            (5, 7),   # FH
+            (5, 8),   # FI
+            (5, 9),   # FJ
+            (5, 10),  # FK
+            (10, 28), # KE1
+            (11, 28), # LE1
+            (12, 28), # ME1
+            (12, 27), # MD1
+            (12, 26), # MC1
+            (13, 26), # NC1
+            (13, 25), # NB1
+            (25, 14), # B1O
+            (15, 25), # PB1
+            (16, 25), # QB1
+            (17, 25), # RB1
+            (23, 25), # ZB1
+            (25, 22), # B1W
+            (18, 25), # SB1
+            (19, 25), # TB1
+            (20, 25), # UB1
+            (20, 22)  # UW
+        ]
+        # Draw all map connections as blue lines
+        map_lines = VGroup()
+        for start_idx, end_idx in connection_pairs:
+            start_label = key_points[start_idx][2]
+            end_label = key_points[end_idx][2]
+            start_coords = get_point_coords(start_label)
+            end_coords = get_point_coords(end_label)
+            if start_coords and end_coords:
+                line = Line(start=start_coords, end=end_coords, color=BLUE, stroke_width=2.5)
+                map_lines.add(line)
+        self.play(Create(map_lines))
+        self.next_slide()
+
+        triangle_data = [
+            (["A", "C", "U₁"], "BLUE", 0.3, "ACU1"),
+            (["C", "U₁", "D"], "BLUE", 0.3, "CU1D"),
+            (["D", "U₁", "T₁"], "BLUE", 0.3, "DU1T1"),
+            (["D", "T₁", "S₁"], "BLUE", 0.3, "DT1S1"),
+            (["D", "S₁", "N₁"], "BLUE", 0.3, "DS1N1"),
+            (["D", "N₁", "M₁"], "BLUE", 0.3, "DN1M1"),
+            (["D", "M₁", "L₁"], "BLUE", 0.3, "DM1L1"),
+            (["D", "L₁", "E"], "BLUE", 0.3, "DL1E"),
+            (["L₁", "E", "K₁"], "BLUE", 0.3, "L1EK1"),
+            (["E", "K₁", "J₁"], "BLUE", 0.3, "EK1J1"),
+            (["E", "J₁", "F₁"], "BLUE", 0.3, "EJ1F1"),
+            (["E", "F", "F₁"], "BLUE", 0.3, "EFF1"),
+            (["E₁", "F", "F₁"], "BLUE", 0.3, "E1FF1"),
+            (["F", "E₁", "K"], "BLUE", 0.3, "FE1K"),
+            (["K", "E₁", "L"], "BLUE", 0.3, "KE1L"),
+            (["L", "E₁", "M"], "BLUE", 0.3, "LE1M"),
+            (["M", "E₁", "D₁"], "BLUE", 0.3, "ME1D1"),
+            (["M", "D₁", "C₁"], "BLUE", 0.3, "MD1C1"),
+            (["M", "C₁", "N₁"], "BLUE", 0.3, "MC1N"),
+            (["N₁", "C₁", "B₁"], "BLUE", 0.3, "NC1B1"),
+            (["N₁", "B₁", "O"], "BLUE", 0.3, "NB1O"),
+            (["O", "B₁", "P"], "BLUE", 0.3, "OB1P"),
+            (["P", "B₁", "Q"], "BLUE", 0.3, "PB1Q"),
+            (["Q", "B₁", "R"], "BLUE", 0.3, "QB1R"),
+            (["R", "B₁", "S"], "BLUE", 0.3, "RB1S"),
+            (["S", "B₁", "T"], "BLUE", 0.3, "SB1T"),
+            (["T", "B₁", "U"], "BLUE", 0.3, "TB1U"),
+            (["U", "B₁", "W"], "BLUE", 0.3, "UB1W"),
+            (["W", "B₁", "Z"], "BLUE", 0.3, "WB1Z"),
+            (["B₁", "A₁", "Z"], "BLUE", 0.3, "B1A1Z")
+        ]
+
+        # --- Draw all adjacent triangles (from triangle_data) ---
+        triangles = VGroup()
+        for vertices, color_name, opacity, name in triangle_data:
+            coords = [get_point_coords(v) for v in vertices]
+            if all(c is not None for c in coords):
+                color = eval(color_name) if color_name in globals() else BLUE
+                triangle = Polygon(*coords, fill_color=color, fill_opacity=opacity, stroke_color=color, stroke_width=2)
+                triangles.add(triangle)
+        self.play(FadeIn(triangles))
+        self.next_slide()
+
         # Funnel Algorithm Steps theo phân tích của Hà Minh Trường (phiên bản chính xác)
         # 5 lần dời đỉnh phễu: A→U₁→E→E₁→C₁→B₁  
         # Đường đi cuối: A → U₁ → E → E₁ → C₁ → B₁ → A₁ (7 points, 6 segments)
@@ -1286,22 +1467,22 @@ class Example(Slide):
         funnel_steps = [
             {
                 "step": 1,
-                "description": "Khởi tạo funnel: AC, AU₁",
+                "description": "Initialize funnel: AC, AU₁",
                 "apex": "A",
                 "left_edge": ["A", "C"],
                 "right_edge": ["A", "U₁"]
             },
             {
                 "step": 2,
-                "description": "Giai đoạn DT1: U₁D, U₁T₁",
+                "description": "Stage DT1: U₁D, U₁T₁",
                 "apex": "A",
                 "left_edge": ["A", "C"],
                 "right_edge": ["A", "T₁"],
-                "note": "Chuẩn bị dời apex A→U₁"
+                "note": "Prepare to move apex A→U₁"
             },
             {
                 "step": 3,
-                "description": "🔄 APEX A → U₁: Funnel cuộn, thêm A→U₁",
+                "description": "🔄 APEX A → U₁: Funnel rolls, add A→U₁",
                 "apex": "U₁",
                 "left_edge": ["U₁", "D"],
                 "right_edge": ["U₁", "T₁"],
@@ -1310,15 +1491,15 @@ class Example(Slide):
             },
             {
                 "step": 4,
-                "description": "Giai đoạn KE1: EFK, EE₁",
+                "description": "Stage KE1: EFK, EE₁",
                 "apex": "U₁",
                 "left_edge": ["U₁", "E"],
                 "right_edge": ["U₁", "E₁"],
-                "note": "Chuẩn bị dời apex U₁→E"
+                "note": "Prepare to move apex U₁→E"
             },
             {
                 "step": 5,
-                "description": "🔄 APEX U₁ → E: Funnel cuộn, thêm U₁→E",
+                "description": "🔄 APEX U₁ → E: Funnel rolls, add U₁→E",
                 "apex": "E",
                 "left_edge": ["E", "F"],
                 "right_edge": ["E", "E₁"],
@@ -1327,15 +1508,15 @@ class Example(Slide):
             },
             {
                 "step": 6,
-                "description": "Giai đoạn NB1: E₁N, E₁C₁B₁",
+                "description": "Stage NB1: E₁N, E₁C₁B₁",
                 "apex": "E",
                 "left_edge": ["E", "M"],
                 "right_edge": ["E", "E₁"],
-                "note": "Chuẩn bị dời apex E→E₁"
+                "note": "Prepare to move apex E→E₁"
             },
             {
                 "step": 7,
-                "description": "🔄 APEX E → E₁: Funnel cuộn, thêm E→E₁",
+                "description": "🔄 APEX E → E₁: Funnel rolls, add E→E₁",
                 "apex": "E₁",
                 "left_edge": ["E₁", "N"],
                 "right_edge": ["E₁", "C₁"],
@@ -1344,7 +1525,7 @@ class Example(Slide):
             },
             {
                 "step": 8,
-                "description": "🔄 APEX E₁ → C₁: A1B1 giai đoạn 1",
+                "description": "🔄 APEX E₁ → C₁: A1B1 stage 1",
                 "apex": "C₁",
                 "left_edge": ["C₁", "B₁"],
                 "right_edge": ["C₁", "A₁"],
@@ -1353,7 +1534,7 @@ class Example(Slide):
             },
             {
                 "step": 9,
-                "description": "🔄 APEX C₁ → B₁: A1B1 giai đoạn 2",
+                "description": "🔄 APEX C₁ → B₁: A1B1 stage 2",
                 "apex": "B₁",
                 "left_edge": ["B₁", "A₁"],
                 "right_edge": ["B₁", "A₁"],
@@ -1370,18 +1551,16 @@ class Example(Slide):
         step_texts = VGroup()
         
         for step_data in funnel_steps:
-            # Create step text với màu sắc phân biệt
+            # Create step text with color
             is_apex_change = "🔄 APEX" in step_data['description']
             text_color = RED if is_apex_change else (GREEN if step_data.get('adds_path_segment') else YELLOW)
-            
-            step_text = Text(f"Bước {step_data['step']}: {step_data['description']}", 
-                           font_size=11, color=text_color, weight=BOLD if is_apex_change else NORMAL)
+            step_text = Text(f"Step {step_data['step']}: {step_data['description']}", 
+                            font_size=11, color=text_color, weight=BOLD if is_apex_change else NORMAL)
             if step_data['step'] == 1:
                 step_text.move_to(RIGHT * 3.2 + UP * 3)
             else:
                 step_text.next_to(step_texts[-1], DOWN, buff=0.12)
             step_texts.add(step_text)
-            
             # Show step description
             self.play(Write(step_text))
             
@@ -1442,7 +1621,7 @@ class Example(Slide):
             self.play(FadeOut(current_apex))
         
         # Final result theo phân tích Hà Minh Trường (chính xác)
-        final_text = Text("Kết quả theo phân tích HMT (chính xác):", font_size=16, color=WHITE, weight=BOLD)
+        final_text = Text("Result according to HMT analysis (accurate):", font_size=16, color=WHITE, weight=BOLD)
         result_text = Text("Shortest Path: A → U₁ → E → E₁ → C₁ → B₁ → A₁ (7 points)", 
                           font_size=14, color=YELLOW)
         segments_text = Text("5 apex changes, 6 path segments", font_size=12, color=WHITE)
@@ -1460,11 +1639,13 @@ class Example(Slide):
         self.next_slide()
         
         # Cleanup
-        fade_objects = [title, polygon_lines, all_points, path_segments, final_group, 
+        fade_objects = [title, polygon_lines, all_points, map_lines, triangles, path_segments, final_group, 
                        step_texts, info_text]
         if a_coord and a1_coord:
             fade_objects.extend([start_circle, goal_circle])
         
         self.play(FadeOut(*fade_objects))
+
+        
 
 pass
