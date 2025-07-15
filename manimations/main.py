@@ -4,28 +4,31 @@ from manim_slides.slide import Slide
 class Example(Slide):
     def construct(self):
         #Slide 1: Title slide
-        self.slide1()
+        # self.slide1()
 
         #Slide 2: Show the map and the problem
-        self.slide2()
+        # self.slide2()
         
         #Slide 3: Grid-based map representation
-        self.slide3()
+        # self.slide3()
         
         #Slide 4: Vector-based map representation  
-        self.slide4()
+        # self.slide4()
         
         #Slide 5: Shortest path properties in simple polygons
-        self.slide5()
+        # self.slide5()
         
         #Slide 6: Funnel technique
-        self.slide6()
+        # self.slide6()
         
         #Slide 7: Funnel algorithm step by step
-        self.slide7()
+        # self.slide7()
 
         #Slide 8: Funnel algorithm in real world
         self.slide8()
+
+        #Slide9: StepByStep in real world
+        self.slide9()
     
     def slide1(self):
         #Slide 1: Title slide
@@ -1079,40 +1082,35 @@ class Example(Slide):
         # Create step information display
         def create_step_info(step_data):
             info = VGroup()
-            
-            # Step title
-            step_title = Text(f"Step {step_data['step']}", font_size=22, weight=BOLD, color=YELLOW)
-            step_desc = Text(step_data['description'], font_size=18, color=WHITE)
-            
-            # Funnel state
-            apex_text = Text(f"Funnel apex: {step_data['apex']}", font_size=20, color=RED)
-            
-            # Handle left edge (can be tuple of 2+ points)
-            left_edge_str = "".join(step_data['left_edge'])
-            left_text = Text(f"Left edge: {left_edge_str}", font_size=20, color=GREEN)
-            
-            # Handle right edge (can be tuple of 2+ points)  
-            right_edge_str = "".join(step_data['right_edge'])
-            right_text = Text(f"Right edge: {right_edge_str}", font_size=20, color=ORANGE)
-            
-            # Current triangle
-            triangle_text = Text(f"Current triangle: {step_data['current_triangle']}", font_size=20, color=BLUE)
-            
-            # Adjacent edge
-            if 'adjacent_edge' in step_data:
-                edge_text = Text(f"Adjacent edge: {step_data['adjacent_edge']}", font_size=20, color=YELLOW)
-            else:
-                edge_text = Text("", font_size=20)
-            
-            # Add basic info
-            info.add(step_title)
-            info.add(step_desc.next_to(step_title, DOWN, buff=0.2, aligned_edge=LEFT))
-            info.add(apex_text.next_to(step_desc, DOWN, buff=0.3, aligned_edge=LEFT))
-            info.add(left_text.next_to(apex_text, DOWN, buff=0.1, aligned_edge=LEFT))
-            info.add(right_text.next_to(left_text, DOWN, buff=0.1, aligned_edge=LEFT))
-            info.add(triangle_text.next_to(right_text, DOWN, buff=0.2, aligned_edge=LEFT))
-            info.add(edge_text.next_to(triangle_text, DOWN, buff=0.1, aligned_edge=LEFT))
 
+            # Funnel apex ký hiệu
+            apex = step_data['apex']
+            # Lấy đáy phễu (hai điểm cuối của left_edge và right_edge)
+            left_edge = step_data['left_edge']
+            right_edge = step_data['right_edge']
+            if isinstance(left_edge, (list, tuple)) and len(left_edge) > 1:
+                left_base = left_edge[-1]
+            else:
+                left_base = left_edge[-1] if left_edge else ""
+            if isinstance(right_edge, (list, tuple)) and len(right_edge) > 1:
+                right_base = right_edge[-1]
+            else:
+                right_base = right_edge[-1] if right_edge else ""
+            # Đáy phễu là hai điểm cuối của left/right edge
+            funnel_base = f"({left_base}, {right_base})"
+            funnel_text = Text(f"F: {apex}{funnel_base}", font_size=22, color=YELLOW)
+
+            # Shortest path ký hiệu
+            # SP(A, D) = ACD, SP(A, E) = AE
+            # Nếu có left_edge dài >=2 thì SP(A, D) = nối các điểm trong left_edge
+            sp_left = "".join(left_edge) if isinstance(left_edge, (list, tuple)) else left_edge
+            sp_right = "".join(right_edge) if isinstance(right_edge, (list, tuple)) else right_edge
+            sp_left_text = Text(f"SP({apex}, {left_base}) = {sp_left}", font_size=18, color=GREEN)
+            sp_right_text = Text(f"SP({apex}, {right_base}) = {sp_right}", font_size=18, color=ORANGE)
+
+            info.add(funnel_text)
+            info.add(sp_left_text.next_to(funnel_text, DOWN, buff=0.2, aligned_edge=LEFT))
+            info.add(sp_right_text.next_to(sp_left_text, DOWN, buff=0.1, aligned_edge=LEFT))
             return info
         
         # Create funnel visualization for a step
@@ -1379,8 +1377,8 @@ class Example(Slide):
             (33, 30), # J1G1
             (33, 29), # J1F1
             (4, 29),  # EF1
-            (5, 29),  # FF1
-            (5, 4),   # FE1
+            (4, 28),  # EE1
+            (5, 28),   # FE1
             (5, 7),   # FH
             (5, 8),   # FI
             (5, 9),   # FJ
@@ -1418,35 +1416,35 @@ class Example(Slide):
 
         triangle_data = [
             (["A", "C", "U₁"], "BLUE", 0.3, "ACU1"),
-            (["C", "U₁", "D"], "BLUE", 0.3, "CU1D"),
+            (["C", "U₁", "D"], "GREEN", 0.3, "CU1D"),
             (["D", "U₁", "T₁"], "BLUE", 0.3, "DU1T1"),
-            (["D", "T₁", "S₁"], "BLUE", 0.3, "DT1S1"),
+            (["D", "T₁", "S₁"], "GREEN", 0.3, "DT1S1"),
             (["D", "S₁", "N₁"], "BLUE", 0.3, "DS1N1"),
-            (["D", "N₁", "M₁"], "BLUE", 0.3, "DN1M1"),
+            (["D", "N₁", "M₁"], "GREEN", 0.3, "DN1M1"),
             (["D", "M₁", "L₁"], "BLUE", 0.3, "DM1L1"),
-            (["D", "L₁", "E"], "BLUE", 0.3, "DL1E"),
+            (["D", "L₁", "E"], "GREEN", 0.3, "DL1E"),
             (["L₁", "E", "K₁"], "BLUE", 0.3, "L1EK1"),
-            (["E", "K₁", "J₁"], "BLUE", 0.3, "EK1J1"),
+            (["E", "K₁", "J₁"], "GREEN", 0.3, "EK1J1"),
             (["E", "J₁", "F₁"], "BLUE", 0.3, "EJ1F1"),
-            (["E", "F", "F₁"], "BLUE", 0.3, "EFF1"),
-            (["E₁", "F", "F₁"], "BLUE", 0.3, "E1FF1"),
-            (["F", "E₁", "K"], "BLUE", 0.3, "FE1K"),
+            (["E", "E₁", "F₁"], "GREEN", 0.3, "EFF1"),
+            (["F", "E", "E₁"], "BLUE", 0.3, "E1FF1"),
+            (["F", "E₁", "K"], "GREEN", 0.3, "FE1K"),
             (["K", "E₁", "L"], "BLUE", 0.3, "KE1L"),
-            (["L", "E₁", "M"], "BLUE", 0.3, "LE1M"),
+            (["L", "E₁", "M"], "GREEN", 0.3, "LE1M"),
             (["M", "E₁", "D₁"], "BLUE", 0.3, "ME1D1"),
-            (["M", "D₁", "C₁"], "BLUE", 0.3, "MD1C1"),
-            (["M", "C₁", "N₁"], "BLUE", 0.3, "MC1N"),
-            (["N₁", "C₁", "B₁"], "BLUE", 0.3, "NC1B1"),
-            (["N₁", "B₁", "O"], "BLUE", 0.3, "NB1O"),
-            (["O", "B₁", "P"], "BLUE", 0.3, "OB1P"),
+            (["M", "D₁", "C₁"], "GREEN", 0.3, "MD1C1"),
+            (["M", "C₁", "N"], "BLUE", 0.3, "MC1N"),
+            (["N", "C₁", "B₁"], "GREEN", 0.3, "NC1B1"),
+            (["N", "B₁", "O"], "BLUE", 0.3, "NB1O"),
+            (["O", "B₁", "P"], "GREEN", 0.3, "OB1P"),
             (["P", "B₁", "Q"], "BLUE", 0.3, "PB1Q"),
-            (["Q", "B₁", "R"], "BLUE", 0.3, "QB1R"),
+            (["Q", "B₁", "R"], "GREEN", 0.3, "QB1R"),
             (["R", "B₁", "S"], "BLUE", 0.3, "RB1S"),
-            (["S", "B₁", "T"], "BLUE", 0.3, "SB1T"),
+            (["S", "B₁", "T"], "GREEN", 0.3, "SB1T"),
             (["T", "B₁", "U"], "BLUE", 0.3, "TB1U"),
-            (["U", "B₁", "W"], "BLUE", 0.3, "UB1W"),
+            (["U", "B₁", "W"], "GREEN", 0.3, "UB1W"),
             (["W", "B₁", "Z"], "BLUE", 0.3, "WB1Z"),
-            (["B₁", "A₁", "Z"], "BLUE", 0.3, "B1A1Z")
+            (["B₁", "A₁", "Z"], "GREEN", 0.3, "B1A1Z")
         ]
 
         # --- Draw all adjacent triangles (from triangle_data) ---
@@ -1460,6 +1458,48 @@ class Example(Slide):
         self.play(FadeIn(triangles))
         self.next_slide()
 
+    def slide9(self):    
+        # Title for this slide
+        title = Text("Funnel Algorithm: A to A₁ (HMT Analysis)", font_size=28, weight=BOLD)
+        title.to_edge(UP, buff=0.5)
+
+        # Data from output.txt - Use exact coordinates and algorithm results
+        scale_factor = 1.5
+        origin_x = -6.5
+        origin_y = -5
+
+        key_points = [
+            (0.3347507967871943, 3.485183600744722, "A"), (0.050904694188400594, 3.6085949497007195, "B"),
+            (0.9641486764627804, 4.275016234063106, "C"), (2.5684962128907447, 4.595885741348698, "D"),
+            (3.5187635998519236, 3.3617722517887247, "E"), (3.9630444560935136, 3.5715715450139203, "F"),
+            (3.3459877113135272, 4.0035112663599115, "G"), (3.8272919722419165, 4.5218389319751005, "H"),
+            (4.357960772752705, 4.447792122601502, "I"), (4.432007582126303, 4.2379928293763065, "J"),
+            (5.431639508669881, 4.756320494991495, "K"), (7.043225809633118, 4.749466919462989, "L"),
+            (6.0264503048242775, 3.6425973825824793, "M"), (6.296732401039286, 2.8446216699476925, "N"),
+            (7.583790002063135, 4.517796551278697, "O"), (8.072871890452197, 4.221773303043212, "P"),
+            (8.150095346513627, 3.629726806572241, "Q"), (8.510471474800305, 2.9861980060603166, "R"),
+            (8.631955589793407, 2.8796705978210464, "S"), (8.644201190827998, 2.6898637817848825, "T"),
+            (8.713164032907233, 2.6637460985435673, "U"), (8.668438722601804, 2.340347700950471, "V"),
+            (8.080128871661172, 2.1786485021539224, "W"), (6.976866217449777, 0.9130917744833986, "Z"),
+            (6.73721872009328, 0.9062447031303559, "A₁"), (6.73721872009328, 1.7895169076728765, "B₁"),
+            (5.806017016079461, 2.583777184625841, "C₁"), (5.669075589018606, 2.4947652570362844, "D₁"),
+            (4.683097314180445, 3.26848431993012, "E₁"), (3.484446850448112, 2.7444580422308507, "F₁"),
+            (3.1338312795565395, 2.0522170432910776, "G₁"), (3.1620538406947065, 1.8886049360312143, "H₁"),
+            (3.0259495654360555, 1.6926113295561307, "I₁"), (2.7181599984970997, 1.6755358917763574, "J₁"),
+            (2.5849918458378176, 1.7998261675916907, "K₁"), (2.702304423074604, 2.0612071861344514, "L₁"),
+            (2.2887578522794154, 2.5736453282067506, "M₁"), (1.8122802815806116, 2.7444580422308507, "N₁"),
+            (1.4257041393155443, 2.4118227570260244, "O₁"), (0.9222561400866195, 2.3399016142790354, "P₁"),
+            (0.643561711942036, 2.501724185459761, "Q₁"), (0.7334631403757726, 2.8523397563513346, "R₁"),
+            (1.0481181398938506, 3.08608347027905, "S₁"), (1.3178224251950605, 3.805294897748944, "T₁"),
+            (0.9042758543998721, 4.128940040110396, "U₁"),
+        ]
+
+        def get_point_coords(label):
+            for x, y, point_label in key_points:
+                if point_label == label:
+                    return (origin_x + x * scale_factor, origin_y + y * scale_factor, 0)
+            return None
+
         # Funnel Algorithm Steps theo phân tích của Hà Minh Trường (phiên bản chính xác)
         # 5 lần dời đỉnh phễu: A→U₁→E→E₁→C₁→B₁  
         # Đường đi cuối: A → U₁ → E → E₁ → C₁ → B₁ → A₁ (7 points, 6 segments)
@@ -1467,79 +1507,243 @@ class Example(Slide):
         funnel_steps = [
             {
                 "step": 1,
-                "description": "Initialize funnel: AC, AU₁",
                 "apex": "A",
                 "left_edge": ["A", "C"],
-                "right_edge": ["A", "U₁"]
+                "right_edge": ["A", "U₁"],
+                "adjacent_edge": "CU₁",
+                "move_apex": False
             },
             {
                 "step": 2,
-                "description": "Stage DT1: U₁D, U₁T₁",
                 "apex": "A",
-                "left_edge": ["A", "C"],
-                "right_edge": ["A", "T₁"],
-                "note": "Prepare to move apex A→U₁"
+                "left_edge": ["A", "U₁", "D"],
+                "right_edge": ["A", "U₁"],
+                "adjacent_edge": "DU₁",
+                "move_apex": False
             },
             {
                 "step": 3,
-                "description": "🔄 APEX A → U₁: Funnel rolls, add A→U₁",
                 "apex": "U₁",
                 "left_edge": ["U₁", "D"],
                 "right_edge": ["U₁", "T₁"],
-                "adds_path_segment": True,
-                "path_segment": ["A", "U₁"]
+                "adjacent_edge": "DT₁",
+                "move_apex": True
             },
             {
                 "step": 4,
-                "description": "Stage KE1: EFK, EE₁",
                 "apex": "U₁",
-                "left_edge": ["U₁", "E"],
-                "right_edge": ["U₁", "E₁"],
-                "note": "Prepare to move apex U₁→E"
+                "left_edge": ["U₁", "D"],
+                "right_edge": ["U₁", "T₁", "S₁"],
+                "adjacent_edge": "DS₁",
+                "move_apex": False
             },
             {
                 "step": 5,
-                "description": "🔄 APEX U₁ → E: Funnel rolls, add U₁→E",
-                "apex": "E",
-                "left_edge": ["E", "F"],
-                "right_edge": ["E", "E₁"],
-                "adds_path_segment": True,
-                "path_segment": ["U₁", "E"]
+                "apex": "U₁",
+                "left_edge": ["U₁", "D"],
+                "right_edge": ["U₁", "T₁", "N₁"],
+                "adjacent_edge": "DN₁",
+                "move_apex": False
             },
             {
                 "step": 6,
-                "description": "Stage NB1: E₁N, E₁C₁B₁",
-                "apex": "E",
-                "left_edge": ["E", "M"],
-                "right_edge": ["E", "E₁"],
-                "note": "Prepare to move apex E→E₁"
+                "apex": "U₁",
+                "left_edge": ["U₁", "D"],
+                "right_edge": ["U₁", "T₁", "M₁"],
+                "adjacent_edge": "DM₁",
+                "move_apex": False
             },
             {
                 "step": 7,
-                "description": "🔄 APEX E → E₁: Funnel rolls, add E→E₁",
-                "apex": "E₁",
-                "left_edge": ["E₁", "N"],
-                "right_edge": ["E₁", "C₁"],
-                "adds_path_segment": True,
-                "path_segment": ["E", "E₁"]
+                "apex": "U₁",
+                "left_edge": ["U₁", "D"],
+                "right_edge": ["U₁", "T₁", "L₁"],
+                "adjacent_edge": "DL₁",
+                "move_apex": False
             },
             {
                 "step": 8,
-                "description": "🔄 APEX E₁ → C₁: A1B1 stage 1",
-                "apex": "C₁",
-                "left_edge": ["C₁", "B₁"],
-                "right_edge": ["C₁", "A₁"],
-                "adds_path_segment": True,
-                "path_segment": ["E₁", "C₁"]
+                "apex": "U₁",
+                "left_edge": ["U₁", "E"],
+                "right_edge": ["U₁", "T₁", "L₁"],
+                "adjacent_edge": "EL₁",
+                "move_apex": False
             },
             {
                 "step": 9,
-                "description": "🔄 APEX C₁ → B₁: A1B1 stage 2",
+                "apex": "U₁",
+                "left_edge": ["U₁", "E"],
+                "right_edge": ["U₁", "T₁", "L₁", "K₁"],
+                "adjacent_edge": "EK₁",
+                "move_apex": False
+            },
+            {
+                "step": 10,
+                "apex": "U₁",
+                "left_edge": ["U₁", "E"],
+                "right_edge": ["U₁", "T₁", "L₁", "J₁"],
+                "adjacent_edge": "EJ₁",
+                "move_apex": False
+            },
+            {
+                "step": 11,
+                "apex": "U₁",
+                "left_edge": ["U₁", "E"],
+                "right_edge": ["U₁", "T₁", "F₁"],
+                "adjacent_edge": "EF₁",
+                "move_apex": False
+            },
+            {
+                "step": 12,
+                "apex": "U₁",
+                "left_edge": ["U₁", "E", "F₁"],
+                "right_edge": ["U₁", "T₁", "F₁"],
+                "adjacent_edge": "FF₁",
+                "move_apex": False
+            },
+            {
+                "step": 13,
+                "apex": "U₁",
+                "left_edge": ["U₁", "E", "F"],
+                "right_edge": ["U₁", "E", "E₁"],
+                "adjacent_edge": "FE₁",
+                "move_apex": False
+            },
+            {
+                "step": 14,
+                "apex": "E",
+                "left_edge": ["E", "F", "K"],
+                "right_edge": ["E", "E₁"],
+                "adjacent_edge": "KE₁",
+                "move_apex": True
+            },
+            {
+                "step": 15,
+                "apex": "E",
+                "left_edge": ["E", "L"],
+                "right_edge": ["E", "E₁"],
+                "adjacent_edge": "LE₁",
+                "move_apex": False
+            },
+            {
+                "step": 16,
+                "apex": "E",
+                "left_edge": ["E", "M"],
+                "right_edge": ["E", "E₁"],
+                "adjacent_edge": "ME₁",
+                "move_apex": False
+            },
+            {
+                "step": 17,
+                "apex": "E",
+                "left_edge": ["E", "M"],
+                "right_edge": ["E", "E₁", "D₁"],
+                "adjacent_edge": "MD₁",
+                "move_apex": False
+            },
+            {
+                "step": 18,
+                "apex": "E",
+                "left_edge": ["E", "M"],
+                "right_edge": ["E", "E₁", "C₁"],
+                "adjacent_edge": "MC₁",
+                "move_apex": False
+            },
+            {
+                "step": 19,
+                "apex": "E",
+                "left_edge": ["E", "E₁", "N"],
+                "right_edge": ["E", "E₁", "C₁"],
+                "adjacent_edge": "NC₁",
+                "move_apex": False
+            },
+            {
+                "step": 20,
+                "apex": "E₁",
+                "left_edge": ["E₁", "N"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "NB₁",
+                "move_apex": True
+            },
+            {
+                "step": 21,
+                "apex": "E₁",
+                "left_edge": ["E₁", "N", "O"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "OB₁",
+                "move_apex": False
+            },
+            {
+                "step": 22,
+                "apex": "E₁",
+                "left_edge": ["E₁", "N", "P"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "PB₁",
+                "move_apex": False
+            },
+            {
+                "step": 23,
+                "apex": "E₁",
+                "left_edge": ["E₁", "N", "Q"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "QB₁",
+                "move_apex": False
+            },
+            {
+                "step": 24,
+                "apex": "E₁",
+                "left_edge": ["E₁", "N", "R"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "RB₁",
+                "move_apex": False
+            },
+            {
+                "step": 25,
+                "apex": "E₁",
+                "left_edge": ["E₁", "N", "S"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "SB₁",
+                "move_apex": False
+            },
+            {
+                "step": 26,
+                "apex": "E₁",
+                "left_edge": ["E₁", "T"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "TB₁",
+                "move_apex": False
+            },
+            {
+                "step": 27,
+                "apex": "E₁",
+                "left_edge": ["E₁", "U"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "UB₁",
+                "move_apex": False
+            },
+            {
+                "step": 28,
+                "apex": "E₁",
+                "left_edge": ["E₁", "W"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "WB₁",
+                "move_apex": False
+            },
+            {
+                "step": 29,
+                "apex": "E₁",
+                "left_edge": ["E₁", "C₁", "B₁", "Z"],
+                "right_edge": ["E₁", "C₁", "B₁"],
+                "adjacent_edge": "ZB₁",
+                "move_apex": False
+            },
+            {
+                "step": 30,
                 "apex": "B₁",
                 "left_edge": ["B₁", "A₁"],
-                "right_edge": ["B₁", "A₁"],
-                "adds_path_segment": True,
-                "path_segment": ["C₁", "B₁"]
+                "right_edge": ["B₁", "B₁"],
+                "adjacent_edge": "A₁B₁",
+                "move_apex": True
             }
         ]
 
@@ -1551,19 +1755,6 @@ class Example(Slide):
         step_texts = VGroup()
         
         for step_data in funnel_steps:
-            # Create step text with color
-            is_apex_change = "🔄 APEX" in step_data['description']
-            text_color = RED if is_apex_change else (GREEN if step_data.get('adds_path_segment') else YELLOW)
-            step_text = Text(f"Step {step_data['step']}: {step_data['description']}", 
-                            font_size=11, color=text_color, weight=BOLD if is_apex_change else NORMAL)
-            if step_data['step'] == 1:
-                step_text.move_to(RIGHT * 3.2 + UP * 3)
-            else:
-                step_text.next_to(step_texts[-1], DOWN, buff=0.12)
-            step_texts.add(step_text)
-            # Show step description
-            self.play(Write(step_text))
-            
             # Clear previous funnel
             if current_funnel_left:
                 self.play(FadeOut(current_funnel_left))
@@ -1636,16 +1827,5 @@ class Example(Slide):
         self.play(path_segments.animate.set_stroke_width(8))
         
         self.wait(3)
-        self.next_slide()
-        
-        # Cleanup
-        fade_objects = [title, polygon_lines, all_points, map_lines, triangles, path_segments, final_group, 
-                       step_texts, info_text]
-        if a_coord and a1_coord:
-            fade_objects.extend([start_circle, goal_circle])
-        
-        self.play(FadeOut(*fade_objects))
-
-        
 
 pass

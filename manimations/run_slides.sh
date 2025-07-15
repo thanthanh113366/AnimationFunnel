@@ -14,4 +14,5 @@ uv run manim-slides render "$FILE_NAME" "$SCENE_NAME"
 
 uv run manim-slides convert "$SCENE_NAME" "slides/${SCENE_NAME}.html"
 
-
+#test nhanh: file trong media/videos
+uv run manim -pql main.py Example
